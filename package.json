@@ -1,0 +1,22 @@
+{
+  "name": "pshot",
+  "version": "1.0.0",
+  "description": "サイトのスクリーンショットを保存するツール",
+  "main": "pshot.js",
+  "bin": {
+    "pshot": "./pshot.js"
+  },
+  "scripts": {
+    "start": "node pshot.js",
+    "postinstall": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.41.0",
+    "sharp": "^0.33.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT",
+  "private": true
+}
