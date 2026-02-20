@@ -110,22 +110,37 @@ const SCALE = 2;             // 【変更点】高画質化 (deviceScaleFactor)
     // --- 【変更点】ファイル名生成ロジック ---
     const urlObj = new URL(targetUrl);
     
-    // ホスト名とパスを連結 (例: antigravity.google/docs/foo)
-    let safeName = urlObj.hostname + urlObj.pathname;
+    // URL全体（プロトコルを含む）をベースにする
+    let safeName = urlObj.href;
 
-    // 1. 拡張子(.htmlなど)があれば除去
-    safeName = safeName.replace(/\.(html|htm|php|jsp|asp)$/i, '');
+    // クエリパラメータ（?以降）やハッシュ（#以降）を考慮して拡張子を除去
+    safeName = safeName.replace(/\.(html|htm|php|jsp|asp)(?=$|\?|#)/i, '');
 
-    // 2. スラッシュ(/)をアンダースコア(_)に置換
-    safeName = safeName.replace(/\//g, '_');
+    // コロン(:)、スラッシュ(/)、クエスチョン(?)、アンパサンド(&)、イコール(=)、ハッシュ(#)をアンダースコア(_)に置換
+    safeName = safeName.replace(/[:\/?&=#]/g, '_');
 
-    // 3. 連続するアンダースコアを整理 & 末尾整理
+    // 連続するアンダースコアを整理 & 末尾整理
     safeName = safeName.replace(/_+/g, '_').replace(/^_|_$/g, '');
 
-    // 4. 万が一ファイル名が空なら index にする
+    // 万が一空ならindex
     if (!safeName) safeName = 'index';
 
-    const filename = `${safeName}.png`;
+    // 現在日時の取得とフォーマット (yyyyMMdd-HHmmss.SSS)
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const MM = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const HH = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    const SSS = String(now.getMilliseconds()).padStart(3, '0');
+
+    // ハイフンやドットを含めたタイムスタンプ文字列の生成
+    const timestamp = `-${yyyy}${MM}${dd}-${HH}${mm}${ss}.${SSS}`;
+
+    // 拡張子 .png を付与し、その直前にタイムスタンプを結合
+    const filename = `${safeName}${timestamp}.png`;
+    // -------------------------------------------------------
 
     fs.writeFileSync(filename, finalImageBuffer);
     console.log(`[Success] 完了: ${filename} に保存しました。`);
